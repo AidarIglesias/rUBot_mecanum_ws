@@ -10,7 +10,7 @@
   <material name="Black">
     <color rgba="0.15 0.15 0.15 1.0"/>
   </material>
-  <material name="SkySkyBlue">
+  <material name="SkyBlue">
     <color rgba="0.0 0.0 1.0 1.0"/>
   </material>
   <material name="White">
