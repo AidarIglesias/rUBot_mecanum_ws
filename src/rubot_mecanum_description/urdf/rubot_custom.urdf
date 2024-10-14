@@ -329,13 +329,13 @@
     <material>Gazebo/DarkYellow</material>
   </gazebo>
   <gazebo reference="base_scan">
-    <material>Gazebo/Indigo</material>
+    <material>Gazebo/Red</material>
   </gazebo>
   <gazebo reference="camera">
     <material>Gazebo/Gold</material>
   </gazebo>
   <gazebo reference="part">
-    <material>Gazebo/Runway</material>
+    <material>Gazebo/Orange</material>
   </gazebo>
   <gazebo reference="upper_left_wheel">
     <material>Gazebo/DarkGrey</material>

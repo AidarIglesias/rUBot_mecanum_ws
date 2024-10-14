@@ -322,23 +322,23 @@
   </gazebo>
 <!-- Gazebo colors have to be specified here with predefined Gazebo colors -->
   <gazebo reference="base_footprint">
-    <material>Gazebo/Yellow</material>
+    <material>Gazebo/Indigo</material>
     <gravity>true</gravity>
   </gazebo>
   <gazebo reference="base_link">
-    <material>Gazebo/Yellow</material>
+    <material>Gazebo/DarkYellow</material>
   </gazebo>
   <gazebo reference="base_scan">
-    <material>Gazebo/DarkGrey</material>
+    <material>Gazebo/Red</material>
   </gazebo>
   <gazebo reference="camera">
-    <material>Gazebo/Green</material>
+    <material>Gazebo/Gold</material>
   </gazebo>
   <gazebo reference="part">
-    <material>Gazebo/Green</material>
+    <material>Gazebo/Orange</material>
   </gazebo>
   <gazebo reference="upper_left_wheel">
-    <material>Gazebo/Grey</material>
+    <material>Gazebo/DarkGrey</material>
     <mu1>0.5</mu1>
     <mu2>0.5</mu2>
     <kp>1000</kp>
@@ -349,7 +349,7 @@
     <fdir1>1 0 0</fdir1>
   </gazebo>
   <gazebo reference="lower_left_wheel">
-    <material>Gazebo/Grey</material>
+    <material>Gazebo/DarkGrey</material>
     <mu1>0.5</mu1>
     <mu2>0.5</mu2>
     <kp>1000</kp>
@@ -360,7 +360,7 @@
     <fdir1>1 0 0</fdir1>
   </gazebo>
   <gazebo reference="upper_right_wheel">
-    <material>Gazebo/Grey</material>
+    <material>Gazebo/DarkGrey</material>
     <mu1>0.5</mu1>
     <mu2>0.5</mu2>
     <kp>1000</kp>
@@ -371,7 +371,7 @@
     <fdir1>1 0 0</fdir1>
   </gazebo>
   <gazebo reference="lower_right_wheel">
-    <material>Gazebo/Grey</material>
+    <material>Gazebo/DarkGrey</material>
     <mu1>0.5</mu1>
     <mu2>0.5</mu2>
     <kp>1000</kp>
