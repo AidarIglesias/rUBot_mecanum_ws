@@ -4,17 +4,17 @@
 <!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                                 | -->
 <!-- =================================================================================== -->
 <robot name="rubot">
-  <material name="Red">
-    <color rgba="1.0 0.0 0.0 1.0"/>
-  </material>
-  <material name="Black">
-    <color rgba="0.15 0.15 0.15 1.0"/>
-  </material>
   <material name="SkyBlue">
     <color rgba="0.0 0.0 1.0 1.0"/>
   </material>
+  <material name="Red">
+    <color rgba="1.0 0.0 0.0 1.0"/>
+  </material>
   <material name="White">
     <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+  <material name="Black">
+    <color rgba="0.15 0.15 0.15 1.0"/>
   </material>
 
 <!-- base_footprint reference frame without inertia is needed -->
