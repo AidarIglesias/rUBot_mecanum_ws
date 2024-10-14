@@ -10,7 +10,7 @@
   <material name="Black">
     <color rgba="0.15 0.15 0.15 1.0"/>
   </material>
-  <material name="Blue">
+  <material name="SkySkyBlue">
     <color rgba="0.0 0.0 1.0 1.0"/>
   </material>
   <material name="White">
@@ -31,7 +31,7 @@
       <geometry>
         <mesh filename="package://rubot_mecanum_description/meshes/rubot/base_link.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="Blue"/>
+      <material name="SkyBlue"/>
     </visual>
     <collision>
       <origin xyz="0 0 0"/>
@@ -322,11 +322,11 @@
   </gazebo>
 <!-- Gazebo colors have to be specified here with predefined Gazebo colors -->
   <gazebo reference="base_footprint">
-    <material>Gazebo/Blue</material>
+    <material>Gazebo/SkyBlue</material>
     <gravity>true</gravity>
   </gazebo>
   <gazebo reference="base_link">
-    <material>Gazebo/Blue</material>
+    <material>Gazebo/SkyBlue</material>
   </gazebo>
   <gazebo reference="base_scan">
     <material>Gazebo/Red</material>
