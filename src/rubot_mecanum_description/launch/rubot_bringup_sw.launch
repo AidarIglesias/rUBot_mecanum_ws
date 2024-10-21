@@ -22,3 +22,4 @@
     <!-- Show in Rviz   -->
     <node name="rviz" pkg="rviz" type="rviz"  args="-d $(find rubot_mecanum_description)/rviz/rubot_nav.rviz"/>
   </launch>
+
