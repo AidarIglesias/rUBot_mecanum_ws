@@ -64,9 +64,16 @@ class rUBot:
         rospy.loginfo("Closest distance of %5.2f m at %5.1f degrees.", closestDistance, angleClosestDistance)
 
         # Behavior based on distance
-        if closestDistance < self._distanceLaser and -80 < angleClosestDistance < 80:
-            self._msg.linear.x = self._backwardSpeed * self._speedFactor
-            self._msg.angular.z = -self.__sign(angleClosestDistance) * self._rotationSpeed * self._speedFactor
+        if closestDistance < self._distanceLaser and -90 < angleClosestDistance < 90:
+            self._msg.linear.x = 0
+            while (closestDistance < self._distanceLaser and angleClosestDistance <= 0):
+                self._msg.angular.z = self.__sign(angleClosestDistance) * self._rotationSpeed * self._speedFactor
+            
+            while (closestDistance < self._distanceLaser and angleClosestDistance > 0):
+                self._msg.angular.z = -self.__sign(angleClosestDistance) * self._rotationSpeed * self._speedFactor
+                
+            ## self._msg.linear.x = self._forwardSpeed * self._speedFactor
+            ## self._msg.angular.z = -self.__sign(angleClosestDistance) * self._rotationSpeed * self._speedFactor
             rospy.logwarn("Within laser distance threshold. Rotating the robot (z=%4.1f)...", self._msg.angular.z)
         else:
             self._msg.linear.x = self._forwardSpeed * self._speedFactor
