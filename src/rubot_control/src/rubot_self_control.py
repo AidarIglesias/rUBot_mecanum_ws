@@ -65,11 +65,13 @@ class rUBot:
 
         # Behavior based on distance
         if closestDistance < self._distanceLaser and -80 < angleClosestDistance < 80:
-            self._msg.linear.y = self._rotationSpeed * self._speedFactor
+            
             if angleClosestDistance <= 0:
                 self._msg.angular.z = -self.__sign(angleClosestDistance) * self._rotationSpeed * self._speedFactor
+                self._msg.linear.y = -1
             else:
                 self._msg.angular.z = self.__sign(angleClosestDistance) * self._rotationSpeed * self._speedFactor
+                self._msg.linear.y = 1
                 
             ## self._msg.linear.x = self._forwardSpeed * self._speedFactor
             ## self._msg.angular.z = -self.__sign(angleClosestDistance) * self._rotationSpeed * self._speedFactor
