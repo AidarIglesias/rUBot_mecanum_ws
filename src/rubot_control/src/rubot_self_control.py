@@ -80,6 +80,7 @@ class rUBot:
             rospy.logwarn("Within laser distance threshold. Rotating the robot (z=%4.1f)...", self._msg.angular.z)
         else:
             self._msg.linear.x = self._forwardSpeed * self._speedFactor
+            self._msg.linear.y = 0
             self._msg.angular.z = 0
 
     @staticmethod
