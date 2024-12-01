@@ -75,12 +75,12 @@ class WallFollower:
         elif regions['front'] < self.d:
             state_description = 'case 2 - front'
             linear_x = 0
-            linear_y = self.vy
+            linear_y = self.vy / 2
             angular_z = self.wz
         elif regions['fright'] < self.d:
             state_description = 'case 3 - fright'
             linear_x = 0
-            linear_y = self.vy
+            linear_y = self.vy / 2
             angular_z = self.wz
             print("R: " + str(regions['right']))
         elif regions['front'] > self.d and regions['right'] < self.d:
