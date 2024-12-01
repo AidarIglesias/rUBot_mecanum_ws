@@ -80,78 +80,82 @@ class WallFollower:
         state_description = ''
 
         # Determine the state and actions based on the distances in the regions
-        if regions['front'] > self.d and regions['fright'] > 2*self.d and regions['right'] > 2*self.d and regions['bright'] > 2*self.d and regions['fleft'] > 2*self.d and regions['left'] > 2*self.d and regions['bleft'] > 2*self.d:
-            state_description = 'case 1 - nothing'
-            linear_x = self.vx
-            angular_z = 0
-
-        elif regions['front'] < self.d and regions['right'] < self.d:
-            state_description = 'case 2 - front and right'
-            linear_x = 0
-            linear_y = self.vy / 2
-            angular_z = 0
-        elif regions['front'] < self.d and regions['left'] < self.d:
-            state_description = 'case 3 - front and left'
-            linear_x = 0
-            linear_y = 0
-            angular_z = self.wz
-        # elif regions['back'] < self.d and regions['right'] < self.d:
-        #     state_description = 'case 4 - back and right'
+        if regions['']:
+            dssdg
+        else:
+            
+        # if regions['front'] > self.d and regions['fright'] > 2*self.d and regions['right'] > 2*self.d and regions['bright'] > 2*self.d and regions['fleft'] > 2*self.d and regions['left'] > 2*self.d and regions['bleft'] > 2*self.d:
+        #     state_description = 'case 1 - nothing'
         #     linear_x = self.vx
-        #     linear_y = 0
-        #     angular_z = 0
-        # elif regions['back'] < self.d and regions['left'] < self.d:
-        #     state_description = 'case 5 - back and left'
-        #     linear_x = 0
-        #     linear_y = -self.vy / 2
         #     angular_z = 0
 
-        elif regions['front'] < self.d and regions['right'] > 2*self.d:
-            state_description = 'case 6 - front'
-            linear_x = 0
-            linear_y = self.vy / 2
-            angular_z = 0
-        # elif regions['back'] < self.d:
-        #     state_description = 'case 7 - back'
-        #     linear_x = 0
-        #     linear_y = -self.vy
-        #     angular_z = 0
-        elif regions['front'] > 2*self.d and regions['right'] < self.d:
-            state_description = 'case 8 - right'
-            linear_x = self.vx
-            linear_y = 0
-            angular_z = 0
-        # elif regions['left'] < self.d:
-        #     state_description = 'case 9 - left'
-        #     linear_x = -self.vx
-        #     linear_y = 0
-        #     angular_z = 0
-
-        elif regions['bright'] < self.d:
-            state_description = 'case 10 - bright'
-            linear_x = 0
-            linear_y = -self.vy
-            angular_z = 0
-        # elif regions['bleft'] < self.d:
-        #     state_description = 'case 11 - bleft'
-        #     linear_x = -self.vx
-        #     linear_y = 0
-        #     angular_z = 0
-        # elif regions['fright'] < self.d:
-        #     state_description = 'case 12 - fright'
-        #     linear_x = self.vx
-        #     linear_y = 0
-        #     angular_z = 0
-        # elif regions['fleft'] < self.d:
-        #     state_description = 'case 13 - fleft'
+        # elif regions['front'] < self.d and regions['right'] < self.d:
+        #     state_description = 'case 2 - front and right'
         #     linear_x = 0
         #     linear_y = self.vy / 2
         #     angular_z = 0
+        # elif regions['front'] < self.d and regions['left'] < self.d:
+        #     state_description = 'case 3 - front and left'
+        #     linear_x = 0
+        #     linear_y = 0
+        #     angular_z = self.wz
+        # # elif regions['back'] < self.d and regions['right'] < self.d:
+        # #     state_description = 'case 4 - back and right'
+        # #     linear_x = self.vx
+        # #     linear_y = 0
+        # #     angular_z = 0
+        # # elif regions['back'] < self.d and regions['left'] < self.d:
+        # #     state_description = 'case 5 - back and left'
+        # #     linear_x = 0
+        # #     linear_y = -self.vy / 2
+        # #     angular_z = 0
 
-        else:
-            state_description = 'case 14 - far'
-            linear_x = self.vx
-            angular_z = 0
+        # elif regions['front'] < self.d and regions['right'] > 2*self.d:
+        #     state_description = 'case 6 - front and far right'
+        #     linear_x = 0
+        #     linear_y = self.vy / 2
+        #     angular_z = 0
+        # # elif regions['back'] < self.d:
+        # #     state_description = 'case 7 - back'
+        # #     linear_x = 0
+        # #     linear_y = -self.vy
+        # #     angular_z = 0
+        # elif regions['front'] > 2*self.d and regions['right'] < self.d:
+        #     state_description = 'case 8 - right and far front'
+        #     linear_x = self.vx
+        #     linear_y = 0
+        #     angular_z = 0
+        # # elif regions['left'] < self.d:
+        # #     state_description = 'case 9 - left'
+        # #     linear_x = -self.vx
+        # #     linear_y = 0
+        # #     angular_z = 0
+
+        # elif regions['bright'] < self.d:
+        #     state_description = 'case 10 - bright'
+        #     linear_x = 0
+        #     linear_y = -self.vy
+        #     angular_z = 0
+        # # elif regions['bleft'] < self.d:
+        # #     state_description = 'case 11 - bleft'
+        # #     linear_x = -self.vx
+        # #     linear_y = 0
+        # #     angular_z = 0
+        # # elif regions['fright'] < self.d:
+        # #     state_description = 'case 12 - fright'
+        # #     linear_x = self.vx
+        # #     linear_y = 0
+        # #     angular_z = 0
+        # # elif regions['fleft'] < self.d:
+        # #     state_description = 'case 13 - fleft'
+        # #     linear_x = 0
+        # #     linear_y = self.vy / 2
+        # #     angular_z = 0
+
+        # else:
+        #     state_description = 'case 14 - far'
+        #     linear_x = self.vx
+        #     angular_z = 0
 
 
         # Log the state description
