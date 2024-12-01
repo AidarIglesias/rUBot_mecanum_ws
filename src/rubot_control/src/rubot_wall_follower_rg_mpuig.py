@@ -137,11 +137,11 @@ class WallFollower:
         #     linear_x = -self.vx
         #     linear_y = 0
         #     angular_z = 0
-        elif regions['fright'] < self.d:
-            state_description = 'case 12 - fright'
-            linear_x = self.vx
-            linear_y = 0
-            angular_z = 0
+        # elif regions['fright'] < self.d:
+        #     state_description = 'case 12 - fright'
+        #     linear_x = self.vx
+        #     linear_y = 0
+        #     angular_z = 0
         # elif regions['fleft'] < self.d:
         #     state_description = 'case 13 - fleft'
         #     linear_x = 0
