@@ -23,6 +23,7 @@ class WallFollower:
         # Get parameters from the parameter server
         self.d = rospy.get_param("~distance_laser")
         self.vx = rospy.get_param("~forward_speed")
+        self.vy = rospy.get_param("~forward_speed")
         self.wz = rospy.get_param("~rotation_speed")
         self.vf = rospy.get_param("~speed_factor")
 
@@ -61,6 +62,7 @@ class WallFollower:
         # Initialize the Twist message
         msg = Twist()
         linear_x = 0
+        linear_y = 0
         angular_z = 0
 
         state_description = ''
@@ -73,10 +75,12 @@ class WallFollower:
         elif regions['front'] < self.d:
             state_description = 'case 2 - front'
             linear_x = 0
+            linear_y = self.vy
             angular_z = self.wz
         elif regions['fright'] < self.d:
             state_description = 'case 3 - fright'
             linear_x = 0
+            linear_y = self.vy
             angular_z = self.wz
             print("R: " + str(regions['right']))
         elif regions['front'] > self.d and regions['right'] < self.d:
@@ -96,6 +100,7 @@ class WallFollower:
         rospy.loginfo(state_description)
         # Set the linear and angular velocities in the Twist message
         msg.linear.x = linear_x
+        msg.linear.y = linear_y
         msg.angular.z = angular_z
         # Publish the Twist message to the /cmd_vel topic
         self.pub.publish(msg)
