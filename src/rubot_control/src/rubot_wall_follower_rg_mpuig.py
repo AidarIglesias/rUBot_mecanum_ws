@@ -85,6 +85,27 @@ class WallFollower:
             linear_x = self.vx
             angular_z = 0
 
+        elif regions['bright'] < self.d:
+            state_description = 'case 10 - bright'
+            linear_x = 0
+            linear_y = -self.vy
+            angular_z = 0
+        elif regions['bleft'] < self.d:
+            state_description = 'case 11 - bleft'
+            linear_x = -self.vx
+            linear_y = 0
+            angular_z = 0
+        elif regions['fright'] < self.d:
+            state_description = 'case 12 - fright'
+            linear_x = self.vx
+            linear_y = 0
+            angular_z = 0
+        elif regions['fleft'] < self.d:
+            state_description = 'case 13 - fleft'
+            linear_x = 0
+            linear_y = self.vy / 2
+            angular_z = 0
+
         elif regions['front'] < self.d and regions['right'] < self.d:
             state_description = 'case 2 - front and right'
             linear_x = 0
@@ -126,27 +147,7 @@ class WallFollower:
             linear_x = -self.vx
             linear_y = 0
             angular_z = 0
-
-        elif regions['bright'] < self.d:
-            state_description = 'case 10 - bright'
-            linear_x = 0
-            linear_y = -self.vy
-            angular_z = 0
-        elif regions['bleft'] < self.d:
-            state_description = 'case 11 - bleft'
-            linear_x = -self.vx
-            linear_y = 0
-            angular_z = 0
-        elif regions['fright'] < self.d:
-            state_description = 'case 12 - fright'
-            linear_x = self.vx
-            linear_y = 0
-            angular_z = 0
-        elif regions['fleft'] < self.d:
-            state_description = 'case 13 - fleft'
-            linear_x = 0
-            linear_y = self.vy / 2
-            angular_z = 0
+            
         else:
             state_description = 'case 14 - far'
             linear_x = self.vx
