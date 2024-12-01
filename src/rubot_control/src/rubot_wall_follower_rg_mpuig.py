@@ -64,7 +64,7 @@ class WallFollower:
             'bleft': min(min(msg.ranges[bleft_min:bleft_max]), 3),
             'left': min(min(msg.ranges[left_min:left_max]), 3),
             'fleft': min(min(msg.ranges[fleft_min:fleft_max]), 3),
-            'back': min(min(msg.ranges[back_min:back_max]), 3),
+            'back': min(min(msg.ranges[back_min:back_max]), 3)
         }
 
         # Call the function to take appropriate action based on the regions
