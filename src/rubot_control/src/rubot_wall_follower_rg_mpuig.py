@@ -1,343 +1,168 @@
 #! /usr/bin/env python3
-
 import rospy
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 import time
 
-# Estat inicial
-state_ = 0
+pub = None
+d = 0
+vx = 0
+wz = 0
+vf = 0
 
-# Maquina d'estats
-state_dict_ = {
-    0: 'Find wall',
-    1: 'Turn right',
-    2: 'Follow the wall',
-    3: 'Turn left',
-    4: 'Diagonally right',
-    5: 'Diagonally left',
-}
+isScanRangesLengthCorrectionFactorCalculated = False
+scanRangesLengthCorrectionFactor = 2
 
-# Logica de transicio d'estats
-def change_state(state):
-    global state_, state_dict_
-    if state is not state_:
-        print('State of Bot - [%s] - %s' % (state, state_dict_[state]))
-        state_ = state
 
-# Classe WallFollower
-class WallFollower:
-    def __init__(self):
-        # Initialize the ROS node
-        rospy.init_node('wall_follower')
+def clbk_laser(msg):
+    # En la primera ejecucion, calculamos el factor de correcion
+    global isScanRangesLengthCorrectionFactorCalculated
+    global scanRangesLengthCorrectionFactor
+    
+    if not isScanRangesLengthCorrectionFactorCalculated:
+            scanRangesLengthCorrectionFactor = len(msg.ranges) / 360
+            isScanRangesLengthCorrectionFactorCalculated = True
+    back_min = int(335 * scanRangesLengthCorrectionFactor)
+    back_cut_min = int(360 * scanRangesLengthCorrectionFactor - 1)
+    back_cut_max = int(0 * scanRangesLengthCorrectionFactor)
+    back_max = int(25 * scanRangesLengthCorrectionFactor)
+    bright_min = int(25 * scanRangesLengthCorrectionFactor)
+    bright_max = int(65 * scanRangesLengthCorrectionFactor)
+    right_min = int(65 * scanRangesLengthCorrectionFactor)
+    right_max = int(115 * scanRangesLengthCorrectionFactor)
+    fright_min = int(115 * scanRangesLengthCorrectionFactor)
+    fright_max = int(155 * scanRangesLengthCorrectionFactor)
+    front_min= int(155 * scanRangesLengthCorrectionFactor)
+    front_max = int(205 * scanRangesLengthCorrectionFactor)
+    fleft_min = int(205 * scanRangesLengthCorrectionFactor)
+    fleft_max = int(245 * scanRangesLengthCorrectionFactor)
+    left_min = int(245 * scanRangesLengthCorrectionFactor)
+    left_max = int(295 * scanRangesLengthCorrectionFactor)
+    bleft_min = int(295 * scanRangesLengthCorrectionFactor)
+    bleft_max = int(335 * scanRangesLengthCorrectionFactor)
 
-        # Create a publisher to the /cmd_vel topic
-        self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
-        # Create a subscriber to the /scan topic
-        self.sub = rospy.Subscriber('/scan', LaserScan, self.clbk_laser)
-        # Register the shutdown function to be called on node shutdown
-        rospy.on_shutdown(self.shutdown)
+    regions = {
+        'back': min(min(msg.ranges[back_min:back_cut_min]),min(msg.ranges[back_cut_max:back_max]), 3),
+        'left':  min(min(msg.ranges[left_min:left_max]), 3),
+        'bleft':  min(min(msg.ranges[bleft_min:bleft_max]), 3),
+        'fleft':  min(min(msg.ranges[fleft_min:fleft_max]), 3),
+        'right':  min(min(msg.ranges[right_min:right_max]), 3),
+        'bright':  min(min(msg.ranges[bright_min:bright_max]), 3),
+        'fright':  min(min(msg.ranges[fright_min:fright_max]), 3),
+        'front':  min(min(msg.ranges[front_min:front_max]), 3),
+    }
 
-        # Set the loop rate to 5 Hz
-        self.rate = rospy.Rate(20)
+    take_action(regions)
 
-        # Get parameters from the parameter server
-        self.d = rospy.get_param("~distance_laser")
-        self.vx = rospy.get_param("~forward_speed")
-        self.vy = rospy.get_param("~forward_speed")
-        self.wz = rospy.get_param("~rotation_speed")
-        self.vf = rospy.get_param("~speed_factor")
 
-        # Variables for scan range correction factor
-        self.isScanRangesLengthCorrectionFactorCalculated = False
-        self.scanRangesLengthCorrectionFactor = 2
+def take_action(regions):
+    msg = Twist()
+    linear_x = 0
+    linear_y = 0
+    angular_z = 0
+    aux = 1.5
 
-    def clbk_laser(self, msg):
-        # On the first execution, calculate the correction factor
-        if not self.isScanRangesLengthCorrectionFactorCalculated:
-            self.scanRangesLengthCorrectionFactor = len(msg.ranges) / 360
-            self.isScanRangesLengthCorrectionFactorCalculated = True
+    state_description = ''
 
-        # Define the range indices for different regions
-        bright_min = int(30 * self.scanRangesLengthCorrectionFactor)
-        bright_max = int(90 * self.scanRangesLengthCorrectionFactor)
-        right_min = int(90 * self.scanRangesLengthCorrectionFactor)
-        right_max = int(120 * self.scanRangesLengthCorrectionFactor)
-        fright_min = int(120 * self.scanRangesLengthCorrectionFactor)
-        fright_max = int(170 * self.scanRangesLengthCorrectionFactor)
-        front_min = int(170 * self.scanRangesLengthCorrectionFactor)
-        front_max = int(190 * self.scanRangesLengthCorrectionFactor)
-        bleft_min = int(280 * self.scanRangesLengthCorrectionFactor)
-        bleft_max = int(330 * self.scanRangesLengthCorrectionFactor)
-        left_min = int(250 * self.scanRangesLengthCorrectionFactor)
-        left_max = int(280 * self.scanRangesLengthCorrectionFactor)
-        fleft_min = int(190 * self.scanRangesLengthCorrectionFactor)
-        fleft_max = int(250 * self.scanRangesLengthCorrectionFactor)
-        back_min = int(330 * self.scanRangesLengthCorrectionFactor)
-        back_max = int(360 * self.scanRangesLengthCorrectionFactor)
-
-        # Define the regions with minimum distances
-        regions = {
-            'bright':  min(min(msg.ranges[bright_min:bright_max]), 3),
-            'right':  min(min(msg.ranges[right_min:right_max]), 3),
-            'fright': min(min(msg.ranges[fright_min:fright_max]), 3),
-            'front':  min(min(msg.ranges[front_min:front_max]), 3),
-            'bleft': min(min(msg.ranges[bleft_min:bleft_max]), 3),
-            'left': min(min(msg.ranges[left_min:left_max]), 3),
-            'fleft': min(min(msg.ranges[fleft_min:fleft_max]), 3),
-            'back': min(min(msg.ranges[back_min:back_max]), 3)
-        }
-
-        # Call the function to take appropriate action based on the regions
-        self.take_action(regions)
-
-    def take_action(self, regions):
-        # Initialize the Twist message
-        msg = Twist()
+    if regions['front'] > d and regions['left'] > d and regions['bleft'] > d*aux and regions['fleft'] > d*aux and regions['right'] > d  and regions['bright'] > d*aux  and regions['fright'] > d*aux  and regions['back'] > d:
+        state_description = 'case 1 - nothing'
+        linear_x = vx
+        linear_y = 0
+        angular_z = 0
+    elif regions['front'] < d and regions['left'] > d:
+        state_description = 'case 2 - front'
         linear_x = 0
+        linear_y = vx
+        angular_z = 0
+
+    elif regions['left'] < d and regions['back'] > d:
+        state_description = 'case 3 - left'
+        linear_x = -vx
+        linear_y = 0
+        angular_z = 0
+        
+
+    elif regions['back'] < d  and regions['right'] > d:
+        state_description = 'case 4 - back'
+        linear_x = 0
+        linear_y = -vx
+        angular_z = 0
+    
+    elif regions['right'] < d and regions['front'] > d:
+        state_description = 'case 5 - right'
+        linear_x = vx
         linear_y = 0
         angular_z = 0
 
-        state_description = ''
+    elif regions['fleft'] < d*aux:
+        state_description = 'case 6 - fleft 2'
+        linear_x = 0
+        linear_y = vx*0.5
+        angular_z = 0
 
-        # Determine the state and actions based on the distances in the regions
-        # if regions['front'] > self.d and regions['fright'] > 2*self.d and regions['right'] > 2*self.d and regions['bright'] > 2*self.d:
-        #     state_description = 'case 0 - nothing'
-        #     linear_x = self.vx
-        #     angular_z = 0
+    elif regions['bleft'] < d*aux:
+        state_description = 'case 7 - bleft 2'
+        linear_x = -vx*0.5
+        linear_y = 0
+        angular_z = 0
 
-        # if regions['right'] < self.d and regions['front'] > 2*self.d and regions['left'] > 2*self.d and regions['back'] > 2*self.d:
-        #     state_description = 'case 1 - right --> move forward'
-        #     linear_x = self.vx
-        #     linear_y = 0
-        #     angular_z = 0
-        # elif regions['front'] < self.d and regions['right'] < self.d and :
-        #     state_description = 'case 2 - front and right'
-        #     linear_x = 0
-        #     linear_y = self.vy
-        #     angular_z = 0
-        # elif regions['front'] < self.d:
-        #     state_description = 'case 3 - front'
-        #     linear_x = 0
-        #     linear_y = self.vy
-        #     angular_z = 0
-        # elif regions['front'] < self.d and regions['left'] < self.d:
-        #     state_description = 'case 4 - front and left'
-        #     linear_x = -self.vx
-        #     linear_y = 0
-        #     angular_z = 0
-        # elif regions['left'] < self.d:
-        #     state_description = 'case 5 - left'
-        #     linear_x = -self.vx
-        #     linear_y = 0
-        #     angular_z = 0
-        # elif regions['fleft'] < self.d:
-        #     state_description = 'case 6 - fleft'
-        #     linear_x = 0
-        #     linear_y = self.vy
-        #     angular_z = 0
-        # elif regions['fright'] < self.d:
-        #     state_description = 'case 7 - fright'
-        #     linear_x = self.vx
-        #     linear_y = 0
-        #     angular_z = 0
-        # elif regions['back'] < self.d and regions['left'] < self.d:
-        #     state_description = 'case 8 - back and left'
-        #     linear_x = 0
-        #     linear_y = -self.vy
-        #     angular_z = 0
-        # elif regions['back'] < self.d:
-        #     state_description = 'case 9 - back'
-        #     linear_x = 0
-        #     linear_y = -self.vy
-        #     angular_z = 0
-        # elif regions['bleft'] < self.d:
-        #     state_description = 'case 10 - bleft'
-        #     linear_x = -self.vx
-        #     linear_y = 0
-        #     angular_z = 0
-        # elif regions['back'] < self.d and regions['right']:
-        #     state_description = 'case 11 - back  and right'
-        #     linear_x = self.vx
-        #     linear_y = 0
-        #     angular_z = 0
-        # else:
-        #     state_description = 'case 5 - far'
-        #     linear_x = 0
-        #     linear_y = -self.vy
-        #     angular_z = 0
+    elif regions['bright'] < d*aux:
+        state_description = 'case 8 - brigth 2'
+        linear_x = 0
+        linear_y = -vx*0.5
+        angular_z = 0
 
-        # if regions['front'] > self.d and regions['fright'] > 2*self.d and regions['right'] > 2*self.d and regions['bright'] > 2*self.d and regions['fleft'] > 2*self.d and regions['left'] > 2*self.d and regions['bleft'] > 2*self.d:
-        #     state_description = 'case 1 - nothing'
-        #     linear_x = self.vx
-        #     angular_z = 0
+    elif regions['fright'] < d*aux:
+        state_description = 'case 9 - rfigth 2'
+        linear_x = vx*0.5
+        linear_y = 0
+        angular_z = 0
 
-        # elif regions['front'] < self.d and regions['right'] < self.d:
-        #     state_description = 'case 2 - front and right'
-        #     linear_x = 0
-        #     linear_y = self.vy / 2
-        #     angular_z = 0
-        # elif regions['front'] < self.d and regions['left'] < self.d:
-        #     state_description = 'case 3 - front and left'
-        #     linear_x = 0
-        #     linear_y = 0
-        #     angular_z = self.wz
-        # # elif regions['back'] < self.d and regions['right'] < self.d:
-        # #     state_description = 'case 4 - back and right'
-        # #     linear_x = self.vx
-        # #     linear_y = 0
-        # #     angular_z = 0
-        # # elif regions['back'] < self.d and regions['left'] < self.d:
-        # #     state_description = 'case 5 - back and left'
-        # #     linear_x = 0
-        # #     linear_y = -self.vy / 2
-        # #     angular_z = 0
+    rospy.loginfo(state_description)
+    msg.linear.x = linear_x
+    msg.linear.y = linear_y
+    msg.angular.z = angular_z
+    pub.publish(msg)
+    rate.sleep()
 
-        # elif regions['front'] < self.d and regions['right'] > 2*self.d:
-        #     state_description = 'case 6 - front and far right'
-        #     linear_x = 0
-        #     linear_y = self.vy / 2
-        #     angular_z = 0
-        # # elif regions['back'] < self.d:
-        # #     state_description = 'case 7 - back'
-        # #     linear_x = 0
-        # #     linear_y = -self.vy
-        # #     angular_z = 0
-        # elif regions['front'] > 2*self.d and regions['right'] < self.d:
-        #     state_description = 'case 8 - right and far front'
-        #     linear_x = self.vx
-        #     linear_y = 0
-        #     angular_z = 0
-        # # elif regions['left'] < self.d:
-        # #     state_description = 'case 9 - left'
-        # #     linear_x = -self.vx
-        # #     linear_y = 0
-        # #     angular_z = 0
+def shutdown():
+    msg = Twist()
+    msg.linear.x = 0
+    msg.linear.y = 0
+    msg.angular.z = 0
+    pub.publish(msg)
+    rospy.loginfo("Stop rUBot")
 
-        # elif regions['bright'] < self.d:
-        #     state_description = 'case 10 - bright'
-        #     linear_x = 0
-        #     linear_y = -self.vy
-        #     angular_z = 0
-        # # elif regions['bleft'] < self.d:
-        # #     state_description = 'case 11 - bleft'
-        # #     linear_x = -self.vx
-        # #     linear_y = 0
-        # #     angular_z = 0
-        # # elif regions['fright'] < self.d:
-        # #     state_description = 'case 12 - fright'
-        # #     linear_x = self.vx
-        # #     linear_y = 0
-        # #     angular_z = 0
-        # # elif regions['fleft'] < self.d:
-        # #     state_description = 'case 13 - fleft'
-        # #     linear_x = 0
-        # #     linear_y = self.vy / 2
-        # #     angular_z = 0
+def main():
+    global pub
+    global sub
+    global rate
+    global d
+    global vx
+    global wz
+    global vf
 
-        # else:
-        #     state_description = 'case 14 - far'
-        #     linear_x = self.vx
-        #     angular_z = 0
+    rospy.init_node('wall_follower')
+    pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+    sub = rospy.Subscriber('/scan', LaserScan, clbk_laser)
+    rospy.on_shutdown(shutdown)
+    rate = rospy.Rate(25)
 
-        # Logica de canvi d'estat en funcio de les regions
-        if regions['front'] > self.d and regions['fleft'] > self.d and regions['fright'] > self.d:
-            state_description = 'case 1 - nothing'
-            change_state(0)
-        elif regions['front'] < self.d and regions['fleft'] > self.d and regions['fright'] > self.d:
-            state_description = 'case 2 - front'
-            change_state(1)
-        elif regions['front'] > self.d and regions['fleft'] > self.d and regions['fright'] < self.d:
-            state_description = 'case 3 - fright'
-            change_state(2)
-        elif regions['front'] > self.d and regions['fleft'] < self.d and regions['fright'] > self.d:
-            state_description = 'case 4 - fleft'
-            change_state(0)
-        elif regions['front'] < self.d and regions['fleft'] > self.d and regions['fright'] < self.d:
-            state_description = 'case 5 - front and fright'
-            change_state(1)
-        elif regions['front'] < self.d and regions['fleft'] < self.d and regions['fright'] > self.d:
-            state_description = 'case 6 - front and fleft'
-            change_state(1)
-        elif regions['front'] < self.d and regions['fleft'] < self.d and regions['fright'] < self.d:
-            state_description = 'case 7 - front and fleft and fright'
-            change_state(1)
-        elif regions['front'] > self.d and regions['fleft'] < self.d and regions['fright'] < self.d:
-            state_description = 'case 8 - fleft and fright'
-            change_state(0)
-        else:
-            state_description = 'unknown case'
-            rospy.loginfo(regions)
-
-        # Funcio buscar paret
-        def find_wall():
-            msg.linear.x = self.vx
-            msg.linear.y = 0
-            msg.angular.z = -self.wz
-            return msg
-
-        # Funcio girar a l'esquerra
-        def turn_left():
-            msg.linear.x = self.vx / 2
-            msg.linear.y = 0
-            msg.angular.z = self.wz
-            return msg
-
-        # Funcio seguir la paret
-        def follow_the_wall():
-            global regions
-            msg.linear.x = self.vx
-            return msg
-
-        # Log the state description
-        rospy.loginfo(state_description)
-
-        # Set the linear and angular velocities in the Twist message
-        if state_ == 0:
-            msg = find_wall()
-        elif state_ == 1:
-            msg = turn_left()
-        elif state_ == 2:
-            msg = follow_the_wall()
-            pass
-        else:
-            rospy.logerr('Unknown state!')
-
-        # Publish the Twist message to the /cmd_vel topic
-        self.pub.publish(msg)
-
-        # Sleep for the remaining time to maintain the loop rate
-        self.rate.sleep()
-        
-        # while not rospy.is_shutdown():
-        #     msg = Twist()
-        #     if state_ == 0:
-        #         msg = find_wall()
-        #     elif state_ == 1:
-        #         msg = turn_left()
-        #     elif state_ == 2:
-        #         msg = follow_the_wall()
-        #         pass
-        #     else:
-        #         rospy.logerr('Unknown state!')
-
-    def shutdown(self):
-        # Create a Twist message with zero velocities
-        msg = Twist()
-        msg.linear.x = 0
-        msg.linear.y = 0
-        msg.angular.z = 0
-        # Publish the Twist message to stop the robot
-        self.pub.publish(msg)
-        # Log the stop message
-        rospy.loginfo("Stop")
-
+    d= rospy.get_param("~distance_laser")
+    vx= rospy.get_param("~forward_speed")
+    wz= rospy.get_param("~rotation_speed")
+    vf= rospy.get_param("~speed_factor")
+    
+    
 if __name__ == '__main__':
     try:
-        # Create an instance of the WallFollower class
-        wall_follower = WallFollower()
-        # Keep the node running
+        main()
         rospy.spin()
     except rospy.ROSInterruptException:
-        # Call the shutdown function if there is a ROS interrupt
-        wall_follower.shutdown()
+        shutdown()
+
+    
+
+
+if __name__ == '__main__':
+    main()
