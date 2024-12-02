@@ -73,7 +73,7 @@ class WallFollower:
         back_max = int(360 * self.scanRangesLengthCorrectionFactor)
 
         # Define the regions with minimum distances
-        regions_ = {
+        regions = {
             'bright':  min(min(msg.ranges[bright_min:bright_max]), 3),
             'right':  min(min(msg.ranges[right_min:right_max]), 3),
             'fright': min(min(msg.ranges[fright_min:fright_max]), 3),
@@ -291,10 +291,10 @@ class WallFollower:
             return msg
 
         def follow_the_wall():
-            global regions_
+            global regions
 
             msg = Twist()
-            msg.linear.x = 0.5
+            msg.linear.x = self.vx
             return msg
         
         while not rospy.is_shutdown():
