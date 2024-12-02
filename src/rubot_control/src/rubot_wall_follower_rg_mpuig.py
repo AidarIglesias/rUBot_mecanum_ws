@@ -7,6 +7,7 @@ import time
 pub = None
 d = 0
 vx = 0
+vy = 0
 wz = 0
 vf = 0
 
@@ -45,6 +46,7 @@ def clbk_laser(msg):
 def take_action(regions):
     msg = Twist()
     linear_x = 0
+    linear_y = 0
     angular_z = 0
 
     state_description = ''
@@ -52,14 +54,17 @@ def take_action(regions):
     if regions['front'] > d and regions['fright'] > 2*d and regions['right'] > 2*d and regions['bright'] > 2*d:
         state_description = 'case 1 - nothing'
         linear_x = vx
+        linear_y = 0
         angular_z = 0
     elif regions['front'] < d:
         state_description = 'case 2 - front'
         linear_x = 0
+        linear_y = vy / 2
         angular_z = wz
     elif regions['fright'] < d:
         state_description = 'case 3 - fright'
         linear_x = 0
+        linear_y = vy
         angular_z = wz
     elif regions['front'] > d and regions['right'] < d:
         state_description = 'case 4 - right'
@@ -76,6 +81,7 @@ def take_action(regions):
 
     rospy.loginfo(state_description)
     msg.linear.x = linear_x
+    msg.linear.y = linear_y
     msg.angular.z = angular_z
     pub.publish(msg)
     rate.sleep()
@@ -94,6 +100,7 @@ def main():
     global rate
     global d
     global vx
+    global vy
     global wz
     global vf
 
@@ -105,6 +112,7 @@ def main():
 
     d= rospy.get_param("~distance_laser")
     vx= rospy.get_param("~forward_speed")
+    vy= rospy.get_param("~forward_speed")
     wz= rospy.get_param("~rotation_speed")
     vf= rospy.get_param("~speed_factor")
     
