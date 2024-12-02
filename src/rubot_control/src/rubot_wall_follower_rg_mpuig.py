@@ -273,14 +273,14 @@ class WallFollower:
         def find_wall():
             msg.linear.x = self.vx
             msg.linear.y = 0
-            msg.angular.z = self.wz
+            msg.angular.z = -self.wz
             return msg
 
         # Funcio girar a l'esquerra
         def turn_left():
             msg.linear.x = self.vx / 2
             msg.linear.y = 0
-            msg.angular.z = -self.wz
+            msg.angular.z = self.wz
             return msg
 
         # Funcio seguir la paret
