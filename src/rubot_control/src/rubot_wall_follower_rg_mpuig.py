@@ -97,7 +97,7 @@ def take_action(regions):
     elif regions['fleft'] < d*aux:
         state_description = 'case 6 - fleft 2'
         linear_x = 0
-        linear_y = vx*0.5
+        linear_y = -vx*0.5
         angular_z = 0
 
     elif regions['bleft'] < d*aux:
