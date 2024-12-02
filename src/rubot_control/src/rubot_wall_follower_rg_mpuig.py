@@ -60,12 +60,12 @@ def take_action(regions):
         state_description = 'case 2 - front'
         linear_x = 0
         linear_y = vy / 2
-        angular_z = 2*wz
+        angular_z = 1.5*wz
     elif regions['fright'] < d:
         state_description = 'case 3 - fright'
         linear_x = 0
         linear_y = vy
-        angular_z = 2*wz
+        angular_z = 1.5*wz
     elif regions['front'] > d and regions['right'] < d:
         state_description = 'case 4 - right'
         linear_x = vx
@@ -73,11 +73,11 @@ def take_action(regions):
     elif regions['bright'] < d:
         state_description = 'case 5 - bright'
         linear_x = 0
-        angular_z = -2*wz
+        angular_z = -1.5*wz
     else:
         state_description = 'case 6 - Far'
         linear_x = vx
-        angular_z = -2*wz
+        angular_z = -1.5*wz
 
     rospy.loginfo(state_description)
     msg.linear.x = linear_x
