@@ -5,6 +5,23 @@ from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 import time
 
+state_ = 0
+
+state_dict_ = {
+    0: 'Find wall',
+    1: 'Turn right',
+    2: 'Follow the wall',
+    3: 'Turn left',
+    4: 'Diagonally right',
+    5: 'Diagonally left',
+}
+
+def change_state(state):
+    global state_, state_dict_
+    if state is not state_:
+        print('State of Bot - [%s] - %s' % (state, state_dict_[state]))
+        state_ = state
+
 class WallFollower:
     def __init__(self):
         # Initialize the ROS node
@@ -56,7 +73,7 @@ class WallFollower:
         back_max = int(360 * self.scanRangesLengthCorrectionFactor)
 
         # Define the regions with minimum distances
-        regions = {
+        regions_ = {
             'bright':  min(min(msg.ranges[bright_min:bright_max]), 3),
             'right':  min(min(msg.ranges[right_min:right_max]), 3),
             'fright': min(min(msg.ranges[fright_min:fright_max]), 3),
@@ -85,66 +102,66 @@ class WallFollower:
         #     linear_x = self.vx
         #     angular_z = 0
 
-        if regions['right'] < self.d:
-            state_description = 'case 1 - right'
-            linear_x = self.vx
-            linear_y = 0
-            angular_z = 0
-        elif regions['front'] < self.d and regions['right'] < self.d:
-            state_description = 'case 2 - front and right'
-            linear_x = 0
-            linear_y = self.vy
-            angular_z = 0
-        elif regions['front'] < self.d:
-            state_description = 'case 3 - front'
-            linear_x = 0
-            linear_y = self.vy
-            angular_z = 0
-        elif regions['front'] < self.d and regions['left'] < self.d:
-            state_description = 'case 4 - front and left'
-            linear_x = -self.vx
-            linear_y = 0
-            angular_z = 0
-        elif regions['left'] < self.d:
-            state_description = 'case 5 - left'
-            linear_x = -self.vx
-            linear_y = 0
-            angular_z = 0
-        elif regions['fleft'] < self.d:
-            state_description = 'case 6 - fleft'
-            linear_x = 0
-            linear_y = self.vy
-            angular_z = 0
-        elif regions['fright'] < self.d:
-            state_description = 'case 7 - fright'
-            linear_x = self.vx
-            linear_y = 0
-            angular_z = 0
-        elif regions['back'] < self.d and regions['left'] < self.d:
-            state_description = 'case 8 - back and left'
-            linear_x = 0
-            linear_y = -self.vy
-            angular_z = 0
-        elif regions['back'] < self.d:
-            state_description = 'case 9 - back'
-            linear_x = 0
-            linear_y = -self.vy
-            angular_z = 0
-        elif regions['bleft'] < self.d:
-            state_description = 'case 10 - bleft'
-            linear_x = -self.vx
-            linear_y = 0
-            angular_z = 0
-        elif regions['back'] < self.d and regions['right']:
-            state_description = 'case 11 - back  and right'
-            linear_x = self.vx
-            linear_y = 0
-            angular_z = 0
-        else:
-            state_description = 'case 5 - far'
-            linear_x = 0
-            linear_y = -self.vy
-            angular_z = 0
+        # if regions['right'] < self.d and regions['front'] > 2*self.d and regions['left'] > 2*self.d and regions['back'] > 2*self.d:
+        #     state_description = 'case 1 - right --> move forward'
+        #     linear_x = self.vx
+        #     linear_y = 0
+        #     angular_z = 0
+        # elif regions['front'] < self.d and regions['right'] < self.d and :
+        #     state_description = 'case 2 - front and right'
+        #     linear_x = 0
+        #     linear_y = self.vy
+        #     angular_z = 0
+        # elif regions['front'] < self.d:
+        #     state_description = 'case 3 - front'
+        #     linear_x = 0
+        #     linear_y = self.vy
+        #     angular_z = 0
+        # elif regions['front'] < self.d and regions['left'] < self.d:
+        #     state_description = 'case 4 - front and left'
+        #     linear_x = -self.vx
+        #     linear_y = 0
+        #     angular_z = 0
+        # elif regions['left'] < self.d:
+        #     state_description = 'case 5 - left'
+        #     linear_x = -self.vx
+        #     linear_y = 0
+        #     angular_z = 0
+        # elif regions['fleft'] < self.d:
+        #     state_description = 'case 6 - fleft'
+        #     linear_x = 0
+        #     linear_y = self.vy
+        #     angular_z = 0
+        # elif regions['fright'] < self.d:
+        #     state_description = 'case 7 - fright'
+        #     linear_x = self.vx
+        #     linear_y = 0
+        #     angular_z = 0
+        # elif regions['back'] < self.d and regions['left'] < self.d:
+        #     state_description = 'case 8 - back and left'
+        #     linear_x = 0
+        #     linear_y = -self.vy
+        #     angular_z = 0
+        # elif regions['back'] < self.d:
+        #     state_description = 'case 9 - back'
+        #     linear_x = 0
+        #     linear_y = -self.vy
+        #     angular_z = 0
+        # elif regions['bleft'] < self.d:
+        #     state_description = 'case 10 - bleft'
+        #     linear_x = -self.vx
+        #     linear_y = 0
+        #     angular_z = 0
+        # elif regions['back'] < self.d and regions['right']:
+        #     state_description = 'case 11 - back  and right'
+        #     linear_x = self.vx
+        #     linear_y = 0
+        #     angular_z = 0
+        # else:
+        #     state_description = 'case 5 - far'
+        #     linear_x = 0
+        #     linear_y = -self.vy
+        #     angular_z = 0
 
         # if regions['front'] > self.d and regions['fright'] > 2*self.d and regions['right'] > 2*self.d and regions['bright'] > 2*self.d and regions['fleft'] > 2*self.d and regions['left'] > 2*self.d and regions['bleft'] > 2*self.d:
         #     state_description = 'case 1 - nothing'
@@ -219,6 +236,34 @@ class WallFollower:
         #     linear_x = self.vx
         #     angular_z = 0
 
+        if regions['front'] > self.d and regions['fleft'] > self.d and regions['fright'] > self.d:
+            state_description = 'case 1 - nothing'
+            change_state(0)
+        elif regions['front'] < self.d and regions['fleft'] > self.d and regions['fright'] > self.d:
+            state_description = 'case 2 - front'
+            change_state(1)
+        elif regions['front'] > self.d and regions['fleft'] > self.d and regions['fright'] < self.d:
+            state_description = 'case 3 - fright'
+            change_state(2)
+        elif regions['front'] > self.d and regions['fleft'] < self.d and regions['fright'] > self.d:
+            state_description = 'case 4 - fleft'
+            change_state(0)
+        elif regions['front'] < self.d and regions['fleft'] > self.d and regions['fright'] < self.d:
+            state_description = 'case 5 - front and fright'
+            change_state(1)
+        elif regions['front'] < self.d and regions['fleft'] < self.d and regions['fright'] > self.d:
+            state_description = 'case 6 - front and fleft'
+            change_state(1)
+        elif regions['front'] < self.d and regions['fleft'] < self.d and regions['fright'] < self.d:
+            state_description = 'case 7 - front and fleft and fright'
+            change_state(1)
+        elif regions['front'] > self.d and regions['fleft'] < self.d and regions['fright'] < self.d:
+            state_description = 'case 8 - fleft and fright'
+            change_state(0)
+        else:
+            state_description = 'unknown case'
+            rospy.loginfo(regions)
+
 
         # Log the state description
         rospy.loginfo(state_description)
@@ -230,6 +275,39 @@ class WallFollower:
         self.pub.publish(msg)
         # Sleep for the remaining time to maintain the loop rate
         self.rate.sleep()
+
+        def find_wall():
+            msg = Twist()
+            msg.linear.x = self.vx
+            msg.linear.y = 0
+            msg.angular.z = self.wz
+            return msg
+
+        def turn_left():
+            msg = Twist()
+            msg.linear.x = self.vx / 2
+            msg.linear.y = 0
+            msg.angular.z = -self.wz
+            return msg
+
+        def follow_the_wall():
+            global regions_
+
+            msg = Twist()
+            msg.linear.x = 0.5
+            return msg
+        
+        while not rospy.is_shutdown():
+            msg = Twist()
+            if state_ == 0:
+                msg = find_wall()
+            elif state_ == 1:
+                msg = turn_left()
+            elif state_ == 2:
+                msg = follow_the_wall()
+                pass
+            else:
+                rospy.logerr('Unknown state!')
 
     def shutdown(self):
         # Create a Twist message with zero velocities
