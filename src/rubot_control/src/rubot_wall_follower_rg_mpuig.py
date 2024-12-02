@@ -5,8 +5,10 @@ from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 import time
 
+# Estat inicial
 state_ = 0
 
+# Maquina d'estats
 state_dict_ = {
     0: 'Find wall',
     1: 'Turn right',
@@ -16,12 +18,14 @@ state_dict_ = {
     5: 'Diagonally left',
 }
 
+# Logica de transicio d'estats
 def change_state(state):
     global state_, state_dict_
     if state is not state_:
         print('State of Bot - [%s] - %s' % (state, state_dict_[state]))
         state_ = state
 
+# Classe WallFollower
 class WallFollower:
     def __init__(self):
         # Initialize the ROS node
@@ -236,6 +240,7 @@ class WallFollower:
         #     linear_x = self.vx
         #     angular_z = 0
 
+        # Logica de canvi d'estat en funcio de les regions
         if regions['front'] > self.d and regions['fleft'] > self.d and regions['fright'] > self.d:
             state_description = 'case 1 - nothing'
             change_state(0)
@@ -264,50 +269,57 @@ class WallFollower:
             state_description = 'unknown case'
             rospy.loginfo(regions)
 
-
-        # Log the state description
-        rospy.loginfo(state_description)
-        # Set the linear and angular velocities in the Twist message
-        msg.linear.x = linear_x
-        msg.linear.y = linear_y
-        msg.angular.z = angular_z
-        # Publish the Twist message to the /cmd_vel topic
-        self.pub.publish(msg)
-        # Sleep for the remaining time to maintain the loop rate
-        self.rate.sleep()
-
+        # Funcio buscar paret
         def find_wall():
-            msg = Twist()
             msg.linear.x = self.vx
             msg.linear.y = 0
             msg.angular.z = self.wz
             return msg
 
+        # Funcio girar a l'esquerra
         def turn_left():
-            msg = Twist()
             msg.linear.x = self.vx / 2
             msg.linear.y = 0
             msg.angular.z = -self.wz
             return msg
 
+        # Funcio seguir la paret
         def follow_the_wall():
             global regions
-
-            msg = Twist()
             msg.linear.x = self.vx
             return msg
+
+        # Log the state description
+        rospy.loginfo(state_description)
+
+        # Set the linear and angular velocities in the Twist message
+        if state_ == 0:
+            msg = find_wall()
+        elif state_ == 1:
+            msg = turn_left()
+        elif state_ == 2:
+            msg = follow_the_wall()
+            pass
+        else:
+            rospy.logerr('Unknown state!')
+
+        # Publish the Twist message to the /cmd_vel topic
+        self.pub.publish(msg)
+
+        # Sleep for the remaining time to maintain the loop rate
+        self.rate.sleep()
         
-        while not rospy.is_shutdown():
-            msg = Twist()
-            if state_ == 0:
-                msg = find_wall()
-            elif state_ == 1:
-                msg = turn_left()
-            elif state_ == 2:
-                msg = follow_the_wall()
-                pass
-            else:
-                rospy.logerr('Unknown state!')
+        # while not rospy.is_shutdown():
+        #     msg = Twist()
+        #     if state_ == 0:
+        #         msg = find_wall()
+        #     elif state_ == 1:
+        #         msg = turn_left()
+        #     elif state_ == 2:
+        #         msg = follow_the_wall()
+        #         pass
+        #     else:
+        #         rospy.logerr('Unknown state!')
 
     def shutdown(self):
         # Create a Twist message with zero velocities
